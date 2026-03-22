@@ -3,19 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>司机时间填报</title>
+<title>司机排班填报</title>
 
 <style>
 body { font-family: -apple-system; background: #f2f2f2; padding: 15px; }
 .container { background: white; padding: 20px; border-radius: 12px; }
 h2 { text-align: center; }
-.day-block { margin-bottom: 15px; }
-label { font-weight: bold; }
+.day-block { margin-bottom: 20px; }
 .checkbox-group {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 5px;
 }
 .checkbox-group label {
     background: #f5f5f5;
@@ -38,7 +36,6 @@ button {
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
 }
 </style>
 </head>
@@ -46,14 +43,13 @@ button {
 <body>
 
 <div class="container">
-<h2>🚗 司机时间填报</h2>
+<h2>🚗 司机排班填报</h2>
 
 <form onsubmit="submitForm(event)">
 
 <input id="name" placeholder="司机姓名" required>
 
 <select id="vehicle">
-<option>请选择车型</option>
 <option>Sedan</option>
 <option>SUV</option>
 <option>7座</option>
@@ -61,7 +57,7 @@ button {
 
 <div id="schedule"></div>
 
-<textarea id="notes" placeholder="备注（如特殊时间/偏好）"></textarea>
+<textarea id="notes" placeholder="备注"></textarea>
 
 <button type="submit">提交</button>
 
@@ -79,7 +75,7 @@ days.forEach(day => {
     let block = document.createElement("div");
     block.className = "day-block";
 
-    let title = document.createElement("label");
+    let title = document.createElement("h4");
     title.innerText = day;
 
     let group = document.createElement("div");
@@ -87,7 +83,7 @@ days.forEach(day => {
 
     slots.forEach(slot => {
         let label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" value="${day} ${slot}"> ${slot}`;
+        label.innerHTML = `<input type="checkbox" value="${day}|${slot}"> ${slot}`;
         group.appendChild(label);
     });
 
@@ -99,29 +95,34 @@ days.forEach(day => {
 function submitForm(e) {
     e.preventDefault();
 
-    let selected = [];
+    let result = {};
+
     document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-        selected.push(el.value);
+        let [day, time] = el.value.split("|");
+        if (!result[day]) result[day] = [];
+        result[day].push(time);
     });
 
-    var output = '司机 🚗【排班填报】\n';
-    output += '👤 ' + document.getElementById('name').value + '\n';
-    output += '🚘 ' + document.getElementById('vehicle').value + '\n';
-    output += '📅 \n' + selected.join('\n') + '\n';
-    output += '📝 ' + document.getElementById('notes').value;
+    let text = '司机 🚗【排班填报】\n';
+    text += '👤 ' + document.getElementById('name').value + '\n';
+    text += '🚘 ' + document.getElementById('vehicle').value + '\n';
+
+    for (let day in result) {
+        text += `${day}：${result[day].join(', ')}\n`;
+    }
+
+    text += '📝 ' + document.getElementById('notes').value;
 
     fetch("👉换成你的Webhook", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             msg_type: "text",
-            content: { text: output }
+            content: { text }
         })
     })
-    .then(() => alert("✅ 已提交"))
-    .catch(() => alert("❌ 提交失败"));
+    .then(() => alert("✅ 提交成功"))
+    .catch(() => alert("❌ 失败"));
 }
 
 </script>
