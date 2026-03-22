@@ -9,24 +9,27 @@
 body { font-family: -apple-system; background: #f2f2f2; padding: 15px; }
 .container { background: white; padding: 20px; border-radius: 12px; }
 h2 { text-align: center; }
+.day-block { margin-bottom: 15px; }
 label { font-weight: bold; }
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 5px;
+}
+.checkbox-group label {
+    background: #f5f5f5;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
 input, select, textarea {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     margin-top: 8px;
     margin-bottom: 15px;
     border-radius: 8px;
     border: 1px solid #ddd;
-}
-.checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.checkbox-group label {
-    background: #f5f5f5;
-    padding: 8px 10px;
-    border-radius: 6px;
 }
 button {
     width: 100%;
@@ -47,10 +50,8 @@ button {
 
 <form onsubmit="submitForm(event)">
 
-<label>司机姓名</label>
-<input id="name" required>
+<input id="name" placeholder="司机姓名" required>
 
-<label>车型</label>
 <select id="vehicle">
 <option>请选择车型</option>
 <option>Sedan</option>
@@ -58,34 +59,9 @@ button {
 <option>7座</option>
 </select>
 
-<label>可工作日期（可多选）</label>
-<div class="checkbox-group">
-<label><input type="checkbox" value="周一"> 周一</label>
-<label><input type="checkbox" value="周二"> 周二</label>
-<label><input type="checkbox" value="周三"> 周三</label>
-<label><input type="checkbox" value="周四"> 周四</label>
-<label><input type="checkbox" value="周五"> 周五</label>
-<label><input type="checkbox" value="周六"> 周六</label>
-<label><input type="checkbox" value="周日"> 周日</label>
-</div>
+<div id="schedule"></div>
 
-<label>时间段（例：08:00-12:00）</label>
-<input id="times" required>
-
-<label>夜单</label>
-<select id="night">
-<option>否</option>
-<option>是</option>
-</select>
-
-<label>儿童座椅</label>
-<select id="childSeat">
-<option>否</option>
-<option>是</option>
-</select>
-
-<label>备注</label>
-<textarea id="notes"></textarea>
+<textarea id="notes" placeholder="备注（如特殊时间/偏好）"></textarea>
 
 <button type="submit">提交</button>
 
@@ -93,21 +69,45 @@ button {
 </div>
 
 <script>
+
+const days = ["周一","周二","周三","周四","周五","周六","周日"];
+const slots = ["06:00-09:00","09:00-15:00","16:00-22:00","22:00-04:00"];
+
+const container = document.getElementById("schedule");
+
+days.forEach(day => {
+    let block = document.createElement("div");
+    block.className = "day-block";
+
+    let title = document.createElement("label");
+    title.innerText = day;
+
+    let group = document.createElement("div");
+    group.className = "checkbox-group";
+
+    slots.forEach(slot => {
+        let label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" value="${day} ${slot}"> ${slot}`;
+        group.appendChild(label);
+    });
+
+    block.appendChild(title);
+    block.appendChild(group);
+    container.appendChild(block);
+});
+
 function submitForm(e) {
     e.preventDefault();
 
-    let days = [];
+    let selected = [];
     document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-        days.push(el.value);
+        selected.push(el.value);
     });
 
-    var output = '司机 🚗【司机时间填报】\n';
+    var output = '司机 🚗【排班填报】\n';
     output += '👤 ' + document.getElementById('name').value + '\n';
     output += '🚘 ' + document.getElementById('vehicle').value + '\n';
-    output += '📅 ' + days.join(', ') + '\n';
-    output += '⏰ ' + document.getElementById('times').value + '\n';
-    output += '🌙 夜单：' + document.getElementById('night').value + '\n';
-    output += '👶 儿童座椅：' + document.getElementById('childSeat').value + '\n';
+    output += '📅 \n' + selected.join('\n') + '\n';
     output += '📝 ' + document.getElementById('notes').value;
 
     fetch("👉换成你的Webhook", {
@@ -123,6 +123,7 @@ function submitForm(e) {
     .then(() => alert("✅ 已提交"))
     .catch(() => alert("❌ 提交失败"));
 }
+
 </script>
 
 </body>
