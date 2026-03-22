@@ -108,39 +108,53 @@ button {
 </div>
 
 <script>
-
-const days = ["周一","周二","周三","周四","周五","周六","周日"];
-const slots = ["06:00-09:00","09:00-15:00","16:00-22:00","22:00-04:00"];
-
-const container = document.getElementById("schedule");
-
-// 动态生成每天的时间段选择
-days.forEach((day, index) => {
-    let block = document.createElement("div");
-    block.className = "day-block";
-
-    let title = document.createElement("h4");
-    title.innerText = day;
-
-    let group = document.createElement("div");
-    group.className = "checkbox-group";
-
-    slots.forEach(slot => {
-        let label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" name="schedule" data-day="${index}" data-slot="${slot}" value="${slot}"> ${slot}`;
-        group.appendChild(label);
-    });
-
-    block.appendChild(title);
-    block.appendChild(group);
-    container.appendChild(block);
+// 页面加载完成后立即执行
+document.addEventListener('DOMContentLoaded', function() {
+    initSchedule();
 });
+
+function initSchedule() {
+    const days = ["周一","周二","周三","周四","周五","周六","周日"];
+    const slots = ["06:00-09:00","09:00-15:00","16:00-22:00","22:00-04:00"];
+    
+    const container = document.getElementById("schedule");
+    
+    if (!container) {
+        console.error("找不到 schedule 容器");
+        return;
+    }
+
+    // 动态生成每天的时间段选择
+    days.forEach((day, index) => {
+        let block = document.createElement("div");
+        block.className = "day-block";
+
+        let title = document.createElement("h4");
+        title.innerText = day;
+
+        let group = document.createElement("div");
+        group.className = "checkbox-group";
+
+        slots.forEach(slot => {
+            let label = document.createElement("label");
+            label.innerHTML = `<input type="checkbox" name="schedule" data-day="${index}" data-slot="${slot}" value="${slot}"> ${slot}`;
+            group.appendChild(label);
+        });
+
+        block.appendChild(title);
+        block.appendChild(group);
+        container.appendChild(block);
+    });
+    
+    console.log("排班选择已生成");
+}
 
 function submitForm(e) {
     e.preventDefault();
 
     // 构建schedule数据
     let schedule = {};
+    const slots = ["06:00-09:00","09:00-15:00","16:00-22:00","22:00-04:00"];
 
     // 初始化7天的schedule
     for (let i = 0; i < 7; i++) {
@@ -191,6 +205,12 @@ function submitForm(e) {
     });
 }
 
+// 兼容性：如果DOMContentLoaded已经触发，立即执行
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSchedule);
+} else {
+    initSchedule();
+}
 </script>
 
 </body>
