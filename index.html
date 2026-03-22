@@ -1,1 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>司机时间填报</title>
 
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont;
+    background: #f2f2f2;
+    padding: 15px;
+}
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+h2 {
+    text-align: center;
+}
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+button {
+    width: 100%;
+    padding: 15px;
+    background: #07c160;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>🚗 司机时间填报</h2>
+
+<form onsubmit="submitForm(event)">
+
+<input id="name" placeholder="司机姓名" required>
+
+<input id="dates" placeholder="日期（例：03/23,03/25）" required>
+
+<input id="times" placeholder="时间段（例：08:00-12:00）" required>
+
+<select id="night">
+<option value="">是否接夜单</option>
+<option>是</option>
+<option>否</option>
+</select>
+
+<select id="childSeat">
+<option value="">是否有儿童座椅</option>
+<option>是</option>
+<option>否</option>
+</select>
+
+<input id="phone" placeholder="电话">
+
+<input id="vehicle" placeholder="车型">
+
+<textarea id="notes" placeholder="备注"></textarea>
+
+<button type="submit">提交</button>
+
+</form>
+</div>
+
+<script>
+function submitForm(e) {
+    e.preventDefault();
+
+    var output = '司机 🚗【司机时间填报】\n';
+    output += '👤 ' + document.getElementById('name').value + '\n';
+    output += '📅 ' + document.getElementById('dates').value + '\n';
+    output += '⏰ ' + document.getElementById('times').value + '\n';
+    output += '🌙 夜单：' + document.getElementById('night').value + '\n';
+    output += '👶 儿童座椅：' + document.getElementById('childSeat').value + '\n';
+    output += '🚘 ' + document.getElementById('vehicle').value + '\n';
+    output += '📞 ' + document.getElementById('phone').value + '\n';
+    output += '📝 ' + document.getElementById('notes').value;
+
+    fetch("👉在这里粘贴你的飞书Webhook", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            msg_type: "text",
+            content: {
+                text: output
+            }
+        })
+    })
+    .then(() => {
+        alert("✅ 已提交成功！");
+    })
+    .catch(() => {
+        alert("❌ 提交失败，请联系管理员");
+    });
+}
+</script>
+
+</body>
+</html>
