@@ -47,14 +47,50 @@ button {
 
 <form onsubmit="submitForm(event)">
 
-<input id="name" placeholder="司机姓名" required>
+<!-- 👤司机 -->
+<select id="name" required>
+<option value="">请选择司机</option>
+<option>zephyr</option>
+<option>jack</option>
+<option>alex</option>
+<option>yang</option>
+<option>chiu</option>
+<option>niuniu</option>
+<option>jason</option>
+<option>Laila</option>
+<option>Arthur</option>
+<option>anna</option>
+<option>aliya</option>
+<option>chole</option>
+<option>Sonny</option>
+<option>Cheng</option>
+<option>sunflower</option>
+<option>sissi</option>
+<option>qunju</option>
+<option>elly</option>
+<option>carol</option>
+</select>
 
+<!-- 🚘车型 -->
 <select id="vehicle">
 <option>Sedan</option>
 <option>SUV</option>
 <option>7座</option>
 </select>
 
+<!-- 🌙夜单 -->
+<select id="night">
+<option value="否">是否接夜单（凌晨后）：否</option>
+<option value="是">是否接夜单（凌晨后）：是</option>
+</select>
+
+<!-- 👶儿童座椅 -->
+<select id="childSeat">
+<option value="否">是否有儿童座椅：否</option>
+<option value="是">是否有儿童座椅：是</option>
+</select>
+
+<!-- 📅排班 -->
 <div id="schedule"></div>
 
 <textarea id="notes" placeholder="备注"></textarea>
@@ -106,6 +142,8 @@ function submitForm(e) {
     let text = '司机 🚗【排班填报】\n';
     text += '👤 ' + document.getElementById('name').value + '\n';
     text += '🚘 ' + document.getElementById('vehicle').value + '\n';
+    text += '🌙 夜单：' + document.getElementById('night').value + '\n';
+    text += '👶 儿童座椅：' + document.getElementById('childSeat').value + '\n';
 
     for (let day in result) {
         text += `${day}：${result[day].join(', ')}\n`;
@@ -122,7 +160,7 @@ function submitForm(e) {
         })
     })
     .then(() => alert("✅ 提交成功"))
-    .catch(() => alert("❌ 失败"));
+    .catch(() => alert("❌ 提交失败"));
 }
 
 </script>
