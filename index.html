@@ -1,383 +1,192 @@
 <!DOCTYPE html>
-
 <html lang="zh-CN">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>司机排班填报</title>
 
-
-
 <style>
-
 body { font-family: -apple-system; background: #f2f2f2; padding: 15px; }
-
 .container { background: white; padding: 20px; border-radius: 12px; }
-
 h2 { text-align: center; }
-
 .day-block { margin-bottom: 20px; }
-
 .checkbox-group {
-
     display: flex;
-
     flex-wrap: wrap;
-
     gap: 8px;
-
 }
-
 .checkbox-group label {
-
     background: #f5f5f5;
-
     padding: 6px 8px;
-
     border-radius: 6px;
-
     font-size: 12px;
-
 }
-
 input, select, textarea {
-
     width: 100%;
-
     padding: 10px;
-
     margin-top: 8px;
-
     margin-bottom: 15px;
-
     border-radius: 8px;
-
     border: 1px solid #ddd;
-
 }
-
 button {
-
     width: 100%;
-
     padding: 15px;
-
     background: #07c160;
-
     color: white;
-
     border: none;
-
     border-radius: 10px;
-
 }
-
 </style>
-
 </head>
-
-
 
 <body>
 
-
-
 <div class="container">
-
 <h2>🚗 司机排班填报</h2>
-
-
 
 <form onsubmit="submitForm(event)">
 
-
-
 <!-- 👤司机 -->
-
 <select id="name" required>
-
 <option value="">请选择司机</option>
-
 <option value="jack">jack</option>
-
 <option value="alex">alex</option>
-
 <option value="yang">yang</option>
-
 <option value="chiu">chiu</option>
-
 <option value="niuniu">niuniu</option>
-
 <option value="jason">jason</option>
-
 <option value="laila">laila</option>
-
 <option value="arthur">arthur</option>
-
 <option value="anna">anna</option>
-
 <option value="aliya">aliya</option>
-
 <option value="chole">chole</option>
-
 <option value="sonny">sonny</option>
-
 <option value="cheng">cheng</option>
-
 <option value="sunflower">sunflower</option>
-
 <option value="sissi">sissi</option>
-
 <option value="qunju">qunju</option>
-
 <option value="elly">elly</option>
-
 <option value="carol">carol</option>
-
 </select>
-
-
 
 <!-- 🚘车型 -->
-
 <select id="vehicle" required>
-
 <option value="">请选择车型</option>
-
 <option value="sedan">sedan</option>
-
 <option value="SUV">SUV</option>
-
 <option value="7座">7座</option>
-
 </select>
-
-
 
 <!-- 🌙是否接夜单 -->
-
 <select id="night" required>
-
 <option value="">是否接夜单（凌晨后）</option>
-
 <option value="否">否</option>
-
 <option value="是">是</option>
-
 </select>
-
-
 
 <!-- 👶是否接儿童 -->
-
 <select id="childSeat" required>
-
 <option value="">是否有儿童座椅</option>
-
 <option value="否">否</option>
-
 <option value="是">是</option>
-
 </select>
 
-
-
 <!-- 📅排班选择 -->
-
 <div id="schedule"></div>
 
-
-
 <!-- 📝备注 -->
-
 <textarea id="notes" placeholder="备注（可选）"></textarea>
-
-
 
 <button type="submit">提交</button>
 
-
-
 </form>
-
 </div>
-
-
 
 <script>
 
-
-
 const days = ["周一","周二","周三","周四","周五","周六","周日"];
-
 const slots = ["06:00-09:00","09:00-15:00","16:00-22:00","22:00-04:00"];
-
-
 
 const container = document.getElementById("schedule");
 
-
-
 days.forEach((day, index) => {
-
     let block = document.createElement("div");
-
     block.className = "day-block";
 
-
-
     let title = document.createElement("h4");
-
     title.innerText = day;
 
-
-
     let group = document.createElement("div");
-
     group.className = "checkbox-group";
 
-
-
     slots.forEach(slot => {
-
         let label = document.createElement("label");
-
         label.innerHTML = `<input type="checkbox" name="schedule" data-day="${index}" data-slot="${slot}" value="${slot}"> ${slot}`;
-
         group.appendChild(label);
-
     });
-
-
 
     block.appendChild(title);
-
     block.appendChild(group);
-
     container.appendChild(block);
-
 });
 
-
-
 function submitForm(e) {
-
     e.preventDefault();
 
-
-
     // 构建schedule数据
-
     let schedule = {};
 
-
-
     // 初始化7天的schedule
-
     for (let i = 0; i < 7; i++) {
-
         schedule[i] = {};
-
         slots.forEach(slot => {
-
             schedule[i][slot] = false;
-
         });
-
     }
 
-
-
     // 填充选中的时间段
-
     document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-
         let dayIndex = el.getAttribute('data-day');
-
         let slot = el.getAttribute('data-slot');
-
         schedule[dayIndex][slot] = true;
-
     });
-
-
 
     // 构建API数据格式
-
     let data = {
-
         driver: document.getElementById('name').value,
-
         vehicle_type: document.getElementById('vehicle').value,
-
         night_shift: document.getElementById('night').value === '是',
-
         child_seat: document.getElementById('childSeat').value === '是',
-
         notes: document.getElementById('notes').value,
-
         schedule: schedule
-
     };
 
-
-
     // 发送到API
-
     fetch("http://10.56.86.84:8082/api/submit-driver-schedule", {
-
         method: "POST",
-
         headers: {"Content-Type": "application/json"},
-
         body: JSON.stringify(data)
-
     })
-
     .then(response => response.json())
-
     .then(result => {
-
         if (result.status === 'success') {
-
             alert("✅ 提交成功！
-
 " + result.message);
-
             // 清空表单
-
             document.querySelector('form').reset();
-
         } else {
-
             alert("❌ 提交失败：
-
 " + result.message);
-
         }
-
     })
-
     .catch(error => {
-
         alert("❌ 提交失败：
-
 " + error.message);
-
     });
-
 }
-
-
 
 </script>
 
-
-
 </body>
-
 </html>
